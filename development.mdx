@@ -1,98 +1,98 @@
 ---
-title: 'Development'
-description: 'Learn how to preview changes locally'
+title: "Cityline API Documentation"
+description: "This is a guide on how to use the Cityline API. Note: More endpoints are always being added."
 ---
 
-<Info>
-  **Prerequisite** You should have installed Node.js (version 18.10.0 or
-  higher).
-</Info>
+# Table of Contents
 
-Step 1. Install Mintlify on your OS:
+- [Authentication](#authentication)
+- [Criminal Endpoint](#criminal-endpoint)
+- [Eviction Endpoint (Not Implemented Yet)](#eviction-endpoint)
 
-<CodeGroup>
+## Authentication
 
-```bash npm
-npm i -g mintlify
-```
+All requests to Cityline's API require authentication. You can use API tokens for security. Pass your Cityline Token in the `apiKey` parameter.
 
-```bash yarn
-yarn global add mintlify
-```
+## Criminal Endpoint
 
-</CodeGroup>
+#### Criminal Report Request - `/criminal/new-report`
 
-Step 2. Go to the docs are located (where you can find `mint.json`) and run the following command:
+**Method:** POST  
 
-```bash
-mintlify dev
-```
+**Test URL:** `http://sandbox-v1-api.cityline.io/criminal/new-report`            
+**Production URL:** `https://prod-v1-api.cityline.io/criminal/new-report`
 
-The documentation website is now available at `http://localhost:3000`.
+**Description:** This is a test endpoint that allows you to request criminal records covering all 50 states + Washington D.C. The Criminal Records Database utilizes fast, accurate, and FCRA-compliant heuristic name matching technology to enhance accuracy when calculating risk.
 
-### Custom Ports
+#### Request Headers  
+- `Content-Type: application/json`
+- `Authorization: apiKey`
 
-Mintlify uses port 3000 by default. You can use the `--port` flag to customize the port Mintlify runs on. For example, use this command to run in port 3333:
+#### Request Parameters
 
-```bash
-mintlify dev --port 3333
-```
+**Body Schema:** (Content-Type: ‘application/json’)
 
-You will see an error like this if you try to run Mintlify in a port that's already taken:
+| Parameter       | Type | Description                                      | Required |
+|-----------------|------|--------------------------------------------------|----------|
+| `subjectInfo`   | obj  | Subject Information (see below for structure)     | Yes      |
+| `buildingInfo`  | obj  | Building Information (see below for structure)    | Yes      |
 
-```md
-Error: listen EADDRINUSE: address already in use :::3000
-```
+### subjectInfo Structure
 
-## Mintlify Versions
+| Field          | Type | Description                                       | Required |
+|----------------|------|---------------------------------------------------|----------|
+| `last`         | str  | Subject’s last name                               | yes      |
+| `first`        | str  | Subject’s first name                              | yes      |
+| `middle`       | str  | Subject’s middle name                             | no       |
+| `dob`          | str  | Subject’s date of birth (MM-DD-YYYY)              | yes      |
+| `ssn`          | str  | Subject’s Social Security Number                  | yes      |
+| `houseNumber`  | str  | Subject’s House Number                            | no       |
+| `streetName`   | str  | Subject’s address                                 | no       |
+| `city`         | str  | Subject’s city                                    | no       |
+| `state`        | str  | Subject’s state                                   | no       |
+| `zip`          | str  | Subject’s zip                                     | no       |
 
-Each CLI is linked to a specific version of Mintlify. Please update the CLI if your local website looks different than production.
+### buildingInfo Structure
 
-<CodeGroup>
+| Field       | Type | Description                                        | Required |
+|-------------|------|----------------------------------------------------|----------|
+| `address`   | str  | Subject’s address applied                          | no       |
+| `unit`      | str  | Subject’s applied to unit number/code              | no       |
+| `bedrooms`  | str  | Subject’s applied to bedroom count                 | no       |
+| `price`     | str  | Subject’s price of unit applied per month          | no       |
 
-```bash npm
-npm i -g mintlify@latest
-```
+**Example Usage with Python and Requests:**
 
-```bash yarn
-yarn global upgrade mintlify
-```
+```python python
+​​import requests
+import json
 
-</CodeGroup>
+url = see url options above
 
-## Deployment
+ payload = {
+    "subjectInfo": {
+        "last": "Consumer",
+        "first": "Jonathan",
+        "middle": "",
+        "dob": "01-01-1982",
+        "ssn": "123-45-6789",
+        "houseNumber": "1803",
+        "streetName": "Norma",
+        "city": "Cottonwood",
+        "state": "CA",
+        "zip": "91502"
+    },
+    "buildingInfo": {
+        "address": "123 Loveland Avenue",
+        "unit": "2A",
+        "bedrooms": "2",
+        "price": "1500"
+    }
+}
 
-<Tip>
-  Unlimited editors available under the [Startup
-  Plan](https://mintlify.com/pricing)
-</Tip>
+headers = {
+"Content-Type": "application/json",
+“Authorization”: “Cityline-API-Token”
+}
 
-You should see the following if the deploy successfully went through:
-
-<Frame>
-  <img src="/images/checks-passed.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
-
-## Troubleshooting
-
-Here's how to solve some common problems when working with the CLI.
-
-<AccordionGroup>
-  <Accordion title="Mintlify is not loading">
-    Update to Node v18. Run `mintlify install` and try again.
-  </Accordion>
-  <Accordion title="No such file or directory on Windows">
-Go to the `C:/Users/Username/.mintlify/` directory and remove the `mint`
-folder. Then Open the Git Bash in this location and run `git clone
-https://github.com/mintlify/mint.git`.
-
-Repeat step 3.
-
-  </Accordion>
-  <Accordion title="Getting an unknown error">
-    Try navigating to the root of your device and delete the ~/.mintlify folder.
-    Then run `mintlify dev` again.
-  </Accordion>
-</AccordionGroup>
-
-Curious about what changed in a CLI version? [Check out the CLI changelog.](/changelog/command-line)
+response = requests.post(url, headers=headers, json=payload)
